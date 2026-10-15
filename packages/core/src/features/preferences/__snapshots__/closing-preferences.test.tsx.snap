@@ -395,6 +395,33 @@ exports[`preferences - closing-preferences > given accessing preferences directl
                 class="HorizontalLine size-xl"
               />
               <div
+                data-preference-item-test="custom-resource-domain-grouping"
+              >
+                <section
+                  id="customResourceDomainGrouping"
+                >
+                  <div
+                    class="SubTitle"
+                  >
+                    Custom Resource Groups
+                     
+                  </div>
+                  <label
+                    class="Switch"
+                    data-testid="switch"
+                  >
+                    Group by API domain
+                    <input
+                      role="switch"
+                      type="checkbox"
+                    />
+                  </label>
+                </section>
+              </div>
+              <div
+                class="HorizontalLine size-xl"
+              />
+              <div
                 data-preference-item-test="start-up"
               >
                 <section
@@ -2083,6 +2110,33 @@ exports[`preferences - closing-preferences > given already in a page and then na
                       class="input-info flex gap-2"
                     />
                   </div>
+                </section>
+              </div>
+              <div
+                class="HorizontalLine size-xl"
+              />
+              <div
+                data-preference-item-test="custom-resource-domain-grouping"
+              >
+                <section
+                  id="customResourceDomainGrouping"
+                >
+                  <div
+                    class="SubTitle"
+                  >
+                    Custom Resource Groups
+                     
+                  </div>
+                  <label
+                    class="Switch"
+                    data-testid="switch"
+                  >
+                    Group by API domain
+                    <input
+                      role="switch"
+                      type="checkbox"
+                    />
+                  </label>
                 </section>
               </div>
               <div

@@ -8,6 +8,7 @@ import { getInjectable } from "@ogre-tools/injectable";
 import { reaction } from "mobx";
 import dependencyInjectionContainerInjectable from "../../../common/dependency-injection/dependency-injection-container.injectable";
 import { injectableDifferencingRegistratorWith } from "../../../common/utils/registrator-helper";
+import userPreferencesStateInjectable from "../../../features/user-preferences/common/state.injectable";
 import { beforeClusterFrameStartsSecondInjectionToken } from "../../before-frame-starts/tokens";
 import customResourceDefinitionGroupsSidebarItemsComputedInjectable from "./groups-sidebar-items-computed.injectable";
 
@@ -22,7 +23,16 @@ const customResourceDefinitionGroupsSidebarItemsRegistratorInjectable = getInjec
         di.inject(dependencyInjectionContainerInjectable),
       );
 
-      reaction(() => sidebarItems.get(), injectableDifferencingRegistrator, { fireImmediately: true });
+      reaction(
+        () => sidebarItems.get(),
+        (items) => {
+          // IDs stay stable across updates, but parent IDs and order numbers may change
+          // as definitions arrive or the grouping preference changes.
+          injectableDifferencingRegistrator([]);
+          injectableDifferencingRegistrator(items);
+        },
+        { fireImmediately: true },
+      );
     },
   }),
   injectionToken: beforeClusterFrameStartsSecondInjectionToken,

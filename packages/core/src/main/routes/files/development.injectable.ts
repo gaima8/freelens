@@ -30,6 +30,8 @@ const devStaticFileRouteHandlerInjectable = getInjectable({
 
     const proxy = createProxyServer();
     const proxyTarget = `http://127.0.0.1:${devServerPort}`;
+    const retriesByRequest = new WeakMap<http.IncomingMessage, number>();
+    const maxModuleRetries = 8;
 
     abortWhenClientCloses(proxy);
 
@@ -49,8 +51,33 @@ const devStaticFileRouteHandlerInjectable = getInjectable({
       // The two kinds of response, but the types of http-proxy-3 name only one;
       // this route proxies no upgrades, so it is never a socket
       const response = res as ServerResponse;
+      const request = req as http.IncomingMessage;
 
       if (isClientGone(response)) {
+        return;
+      }
+
+      const retryCount = retriesByRequest.get(request) ?? 0;
+      const isTransientModuleConnectionError =
+        error instanceof Error && "code" in error && (error.code === "ECONNRESET" || error.code === "EPIPE");
+
+      if (
+        isTransientModuleConnectionError &&
+        request.method === "GET" &&
+        request.url?.startsWith("/@") &&
+        retryCount < maxModuleRetries &&
+        !response.headersSent
+      ) {
+        retriesByRequest.set(request, retryCount + 1);
+        const delay = Math.min(1000, 100 * 2 ** retryCount);
+
+        logger.debug(`retrying ${request.url} after ${error.code} (${retryCount + 1}/${maxModuleRetries})`);
+        setTimeout(() => {
+          if (!isClientGone(response)) {
+            proxy.web(request, response as http.ServerResponse, { target: proxyTarget });
+          }
+        }, delay);
+
         return;
       }
 
